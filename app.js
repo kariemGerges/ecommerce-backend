@@ -63,8 +63,8 @@ app.use(morgan('dev'));
 // Routes
 app.use('/', indexRouter);
 app.use('/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/products', productRoutes);
+app.use('/orders', orderRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
