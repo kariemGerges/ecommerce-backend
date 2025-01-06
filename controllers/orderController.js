@@ -5,8 +5,8 @@ const Product = require('../models/Product');
 // CREATE an order
 exports.createOrder = async (req, res) => {
   try {
-    // items = [{ productId, quantity, price }, ...]
-    const { items, pickupNotes } = req.body;
+    // items item.productId);, quantity, price }, ...]
+    const { items, pickupDate ,pickupNotes } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
@@ -24,7 +24,7 @@ exports.createOrder = async (req, res) => {
       }
       // optional: check stock, etc.
       orderItems.push({
-        product: product._id,
+        productId: product._id,
         quantity: item.quantity,
         price: item.price
       });
@@ -35,8 +35,9 @@ exports.createOrder = async (req, res) => {
       user: req.user ? req.user._id : null,
       items: orderItems,
       totalPrice,
+      pickupDate,
       paymentStatus: 'Pending',
-      pickupStatus: 'Not Ready',
+      pickupStatus: 'Pending',
       pickupNotes: pickupNotes || ''
     });
 
@@ -60,9 +61,10 @@ exports.getAllOrders = async (req, res) => {
 };
 
 // GET current user's orders
+// http://localhost:3000/orders/myorders (GET)
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate('items.product');
+    const orders = await Order.find({ user: req.user._id }).populate('items.productId');
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -76,7 +78,7 @@ exports.updatePickupStatus = async (req, res) => {
     const { status } = req.body; // e.g. 'Ready', 'Completed'
 
     const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (!order) return res.status(404).json({ message: 'Order not found', error });
 
     order.pickupStatus = status;
     const updatedOrder = await order.save();
