@@ -1,6 +1,7 @@
 // controllers/orderController.js
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { sendOrderConfirmationEmail } = require('../utils/emailUtils');
 
 // CREATE an order
 exports.createOrder = async (req, res) => {
@@ -33,6 +34,7 @@ exports.createOrder = async (req, res) => {
 
     const order = new Order({
       user: req.user ? req.user._id : null,
+      username: req.user ? req.user.name : 'Guest',
       items: orderItems,
       totalPrice,
       pickupDate,
@@ -42,7 +44,22 @@ exports.createOrder = async (req, res) => {
     });
 
     const savedOrder = await order.save();
-    res.status(201).json(savedOrder);
+
+    // Send email confirmation
+    const orderDetails = items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price
+    }));
+
+    await sendOrderConfirmationEmail(
+      req.user ? req.user.email : '', 
+      req.user ? req.user.name : 'Guest',
+      orderDetails
+    ); 
+
+    res.status(201).json(savedOrder);    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

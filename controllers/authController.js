@@ -1,20 +1,37 @@
 // controllers/authController.js
+const { validatePassword } = require('../utils/passwordValidationUtils');
+const { isValidEmail } = require('../utils/emailValidationUtils');
+const { isValidUSPhoneNumber } = require('../utils/phoneValidationUtils');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '60m' });
 };
 
 // Register new user
 exports.registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
   try {
+
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Validate email
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate password
+    validatePassword(password);
+
+    // Validate phone number
+    if (!isValidUSPhoneNumber(phone)) {
+      return res.status(400).json({ message: 'Invalid phone number format' });
     }
 
     // Create new user
@@ -39,12 +56,12 @@ exports.loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password or both' });
     }
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password or both' });
     }
 
     // Return user data + JWT

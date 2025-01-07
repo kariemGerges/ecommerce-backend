@@ -19,8 +19,11 @@ router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 
 // Admin routes
+// add product to database
 router.post('/', protect, adminOnly, createProduct);
+// update product by id
 router.put('/:id', protect, adminOnly, updateProduct);
+// delete product by id
 router.delete('/:id', protect, adminOnly, deleteProduct);
 
 module.exports = router;
