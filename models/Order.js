@@ -41,7 +41,12 @@ const OrderSchema = new Schema({
     },
     customerComments: {
         type: String
-    }
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Paid', 'Failed'],
+        default: 'Pending'
+    },
 });
 
 module.exports = mongoose.model('PickupOrder', OrderSchema);
