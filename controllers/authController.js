@@ -16,7 +16,9 @@ exports.registerUser = async (req, res) => {
   try {
 
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ 
+      email: { $eq: email}
+    });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -56,7 +58,7 @@ exports.loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password or both' });
+      return res.status(401).json({ message: 'Invalid email or password or both.' });
     }
 
     const isMatch = await user.matchPassword(password);

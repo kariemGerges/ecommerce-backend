@@ -6,12 +6,13 @@ const morgan = require('morgan');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const csurf = require('csurf');
 const redis = require('redis');
 const logger = require('morgan');
 const connectDB = require('./config/db');
-
+const sanitizeInput = require('./middlewares/sanitizeInput');
 // Route files
 const indexRouter = require('./routes/index');
 const authRoutes = require('./routes/authRouter');
@@ -20,9 +21,13 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
+
+
 // Connect to DB
 connectDB();
 
+// 1) SANITIZE all incoming data requests
+app.use(sanitizeInput);
 // 2) SECURITY: HELMET (SECURE HEADERS + HSTS)
 app.use(helmet({
   // If needed customize certain headers, goes here. 
@@ -44,7 +49,7 @@ app.use(helmet({
 // 3) RATE LIMITING
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,                 // max requests per IP per windowMs
+  max: 5,                 // max requests per IP per windowMs
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.'
@@ -53,6 +58,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(cors());
+app.use(compression());
 
 app.use(logger('dev'));
 app.use(express.json());
