@@ -2,6 +2,7 @@
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Order = require('../models/Order');
+const { sendPaymentConfirmationEmail } = require('../utils/emailUtils');
 
 exports.createCheckoutSession = async (req, res) => {
     try {
@@ -80,6 +81,9 @@ exports.stripeWebhook = async (req, res) => {
           
           // Mark the order as paid in the DB
           await Order.findByIdAndUpdate(orderId, { paymentStatus: 'Paid' });
+
+          // Send payment confirmation email
+          await sendPaymentConfirmationEmail(session.customer_details.email, session.customer_details.name, orderId);
           
           // Optionally send confirmation emails, etc.
           console.log(`Order ${orderId} has been paid.`);

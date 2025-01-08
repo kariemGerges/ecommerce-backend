@@ -47,7 +47,7 @@ exports.createOrder = async (req, res) => {
 
     // Send email confirmation
     const orderDetails = items.map((item) => ({
-      name: item.name,
+      name: item.productId.name,
       quantity: item.quantity,
       price: item.price
     }));
