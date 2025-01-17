@@ -1,5 +1,20 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
 # Node modules
 node_modules/
+jspm_packages/
+
 
 # Build files
 scripts/
@@ -7,13 +22,10 @@ scripts/
 # Environment variables
 .env
 
-# Logs
-logs
-*.log
-npm-debug.log*
-
 # Production build
 dist/
+build/
+
 
 # Optional npm cache directory
 .npm
@@ -25,3 +37,30 @@ Thumbs.db
 # Other files and directories
 .vscode/
 .idea/
+
+# Cache directories
+.cache/
+tmp/
+temp/
+
+# Debugging files
+*.swp
+*.swo
+*.swn
+*.log.*
+*.tgz
+.idea/
+.vscode/
+.vscode-test/
+
+# Coverage reports
+coverage/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Lock files (optional)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

@@ -22,6 +22,9 @@ const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
+// https://ecommerce-backend-8xv8.onrender.com (backend)
+// https://ecommerce-backend-8xv8.onrender.com/auth/login example
+
 
 // Connect to DB
 connectDB();
