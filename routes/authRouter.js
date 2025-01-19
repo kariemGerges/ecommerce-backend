@@ -1,7 +1,7 @@
 // routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getUserProfile } = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser ,getUserProfile } = require('../controllers/authController');
 const { protect } = require('../middlewares/authMiddleware');
 const { validateRegister, validateLogin } = require('../middlewares/validateUser');
 const restrictQuery = require('../middlewares/restrictQuery');
@@ -13,6 +13,9 @@ router.post('/register', validateRegister ,registerUser);
 
 // http://localhost:3000/auth/login
 router.post('/login', validateLogin ,loginUser);
+
+// http://localhost:3000/auth/logout
+router.post('/logout', logoutUser);
 
 // Protected route
 // http://localhost:3000/auth/profile
