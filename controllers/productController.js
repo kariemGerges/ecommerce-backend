@@ -10,6 +10,58 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+// fetch products by filers and pagination
+exports.getFilteredProducts = async (req, res) => {
+  try {
+    const {
+      category,
+      brand,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    // build the filter object
+    const filter = {};
+    if (category) filter.category = category;
+    if (brand) filter.brand = brand;
+    if (minPrice) filter.price = { ...filter.price, $gte: minPrice };
+    if (maxPrice) filter.price = { ...filter.price, $lte: maxPrice };
+
+    // pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // fetch products
+    const filteredProducts = await Product.find(filter)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / parseInt(limit));
+
+    res.status(200).json({
+      products: filteredProducts,
+      pagination: {
+        totalProducts,
+        currentPage: parseInt(page),
+        totalPages: totalPages,
+        limit: parseInt(limit),
+        pageSize: parseInt(limit),
+        hasPreviousPage: parseInt(page) > 1,
+        hasNextPage: parseInt(page) < totalPages,
+        previousPage: parseInt(page) - 1,
+        nextPage: parseInt(page) + 1,
+
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.error('Error fetching filtered products',error);
+  }
+};
+
 // Get paginated products 10 per page
 exports.getProductsPaginated = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;

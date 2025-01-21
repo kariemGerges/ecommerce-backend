@@ -5,6 +5,7 @@ const {
     getAllProducts,
     getProductsPaginated,
     getRandomProducts,
+    getFilteredProducts,
     getProductById,
     createProduct,
     updateProduct,
@@ -22,6 +23,10 @@ router.get('/random', getRandomProducts);
 
 // http://localhost:3000/products/paginated
 router.get('/paginated', getProductsPaginated);
+
+// filtered products
+// http://localhost:3000/products/filtered?category=Toys&maxPrice=40
+router.get('/filtered', getFilteredProducts);
 
 // http://localhost:3000/products/677b1c1e24a3bcf7543c8f49
 router.get('/:id', getProductById);
