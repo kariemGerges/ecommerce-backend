@@ -1,4 +1,6 @@
+const { default: queryString } = require("query-string");
 const Product = require("../models/Product");
+const { buildPriceRangeFilter } = require("../utils/priceRangeFilter");
 
 // Get all products
 exports.getAllProducts = async (req, res) => {
@@ -13,24 +15,39 @@ exports.getAllProducts = async (req, res) => {
 // fetch products by filers and pagination
 exports.getFilteredProducts = async (req, res) => {
   try {
-    const {
-      category,
-      brand,
-      minPrice,
-      maxPrice,
-      page = 1,
-      limit = 10,
-    } = req.query;
+    // const parsedQuery = queryString.parse(req.url, {
+    //   arrayFormat: "bracket",
+    // });
+    // const {
+    //   category,
+    //   brand,
+    //   price,
+    //   page = 1,
+    //   limit = 12,
+    // } = parsedQuery;
+
+    // Express automatically populates req.query:
+    const { category, brand, price, page = 1, limit = 12 } = req.query;
 
     // build the filter object
     const filter = {};
-    if (category) filter.category = category;
-    if (brand) filter.brand = brand;
-    if (minPrice) filter.price = { ...filter.price, $gte: minPrice };
-    if (maxPrice) filter.price = { ...filter.price, $lte: maxPrice };
-
+    if (category) {
+      const categories = Array.isArray(category) ? category : [category];
+      filter.category = { $in: categories };
+    }
+    if (brand) {
+      const brands = Array.isArray(brand) ? brand : [brand];
+      filter.brand = { $in: brands };
+    }
+    // build the price filter
+    if (price) {
+      const priceFilter = buildPriceRangeFilter(price);
+      Object.assign(filter, priceFilter);
+    }
     // pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    console.log("filter", filter);
 
     // fetch products
     const filteredProducts = await Product.find(filter)
@@ -43,22 +60,19 @@ exports.getFilteredProducts = async (req, res) => {
 
     res.status(200).json({
       products: filteredProducts,
-      pagination: {
-        totalProducts,
-        currentPage: parseInt(page),
-        totalPages: totalPages,
-        limit: parseInt(limit),
-        pageSize: parseInt(limit),
-        hasPreviousPage: parseInt(page) > 1,
-        hasNextPage: parseInt(page) < totalPages,
-        previousPage: parseInt(page) - 1,
-        nextPage: parseInt(page) + 1,
-
-      },
+      totalProducts,
+      currentPage: parseInt(page),
+      totalPages: totalPages,
+      limit: parseInt(limit),
+      pageSize: parseInt(limit),
+      hasPreviousPage: parseInt(page) > 1,
+      hasNextPage: parseInt(page) < totalPages,
+      previousPage: parseInt(page) - 1,
+      nextPage: parseInt(page) + 1,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
-    console.error('Error fetching filtered products',error);
+    console.error("Error fetching filtered products", error);
   }
 };
 
