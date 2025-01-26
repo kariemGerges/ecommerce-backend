@@ -64,7 +64,7 @@ app.use(limiter);
 // Allowed origins
 const allowedOrigins = [
   "http://localhost:3001",
-  "https://kariemgerges.github.io/ecommerce-frontend/",
+  "https://kariemgerges.github.io/ecommerce-frontend",
 ];
 
 app.use(
