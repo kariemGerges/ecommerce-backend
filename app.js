@@ -62,7 +62,7 @@ app.use(limiter);
 
 app.use(cors({
   // origin: 'http://localhost:3001',
-  origin: 'https://kariemgerges.github.io/ecommerce-frontend/',
+  origin: 'https://kariemgerges.github.io',
   credentials: true,
 }));
 
