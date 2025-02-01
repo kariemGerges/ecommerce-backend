@@ -12,71 +12,64 @@ const User = require('../models/User');
 exports.protect = async (req, res, next) => {
   let token;
 
-  // Check for an Authorization header with 'Bearer'
-  if (
+  // Check for token in cookies
+  if (req.cookies && req.cookies.authToken) {
+    token = req.cookies.authToken;
+  }
+  // Check for token in Authorization header
+  else if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer ')
+    req.headers.authorization.startsWith("Bearer ")
   ) {
-    token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(" ")[1];
   } else {
     return res.status(401).json({
       success: false,
-      message: 'Authorization header missing or malformed',
-    });
-  }
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'No token provided, authorization denied',
+      message: "No token provided, authorization denied",
     });
   }
 
   try {
-    // Verify token (optionally specify allowed algorithms for extra security)
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
-      algorithms: ['HS256'], // or whatever algorithm(s) you allow
+      algorithms: ["HS256"],
     });
 
-    // decoded should have at least { id, iat, exp }
-    // Fetch the user, excluding password
-    const user = await User.findById(decoded.id).select('-password');
+    // Fetch the user from the database
+    const user = await User.findById(decoded.id).select("-password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token: user not found',
+        message: "Invalid token: user not found",
       });
     }
 
-    // (Optional) Check if user is disabled, banned, etc.
+    // Check if the user is banned or disabled
     if (user.isBanned) {
       return res.status(403).json({
         success: false,
-        message: 'User is banned. Contact support.',
+        message: "User is banned. Contact support.",
       });
     }
 
-    // Attach user to the request object
+    // Attach the user to the request object
     req.user = user;
     next();
-
   } catch (error) {
-    // Handle specific JWT errors
-    if (error.name === 'TokenExpiredError') {
+    if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,
-        message: 'Token has expired, please log in again',
+        message: "Token has expired, please log in again",
       });
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token, verification failed',
+        message: "Invalid token, verification failed",
       });
     } else {
-      // Catch-all for other errors
       return res.status(401).json({
         success: false,
-        message: 'Not authorized, token verification failed',
+        message: "Not authorized, token verification failed",
       });
     }
   }

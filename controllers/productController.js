@@ -15,16 +15,6 @@ exports.getAllProducts = async (req, res) => {
 // fetch products by filers and pagination
 exports.getFilteredProducts = async (req, res) => {
   try {
-    // const parsedQuery = queryString.parse(req.url, {
-    //   arrayFormat: "bracket",
-    // });
-    // const {
-    //   category,
-    //   brand,
-    //   price,
-    //   page = 1,
-    //   limit = 12,
-    // } = parsedQuery;
 
     // Express automatically populates req.query:
     const { category, brand, price, page = 1, limit = 12 } = req.query;
@@ -47,7 +37,7 @@ exports.getFilteredProducts = async (req, res) => {
     // pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    console.log("filter", filter);
+    // console.log("filter", filter);
 
     // fetch products
     const filteredProducts = await Product.find(filter)

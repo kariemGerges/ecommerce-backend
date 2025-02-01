@@ -18,9 +18,10 @@ router.post('/', protect, createOrder);
 // http://localhost:3000/orders/myorders (GET)
 router.get('/myorders', protect, getMyOrders);
 
+
 // Admin only: get all orders
 // http://localhost:3000/orders (GET)
-router.get('/', protect, adminOnly, getAllOrders);
+router.get('/', protect, getAllOrders);
 
 // Admin only: update pickup status
 // http://localhost:3000/orders/677b70aba8c7c7ee186e88d3/pickup-status (PATCH)

@@ -4,6 +4,7 @@ const { isValidEmail } = require("../utils/emailValidationUtils");
 const { isValidUSPhoneNumber } = require("../utils/phoneValidationUtils");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const { token } = require("morgan");
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -42,7 +43,7 @@ exports.registerUser = async (req, res) => {
     const token = generateToken(user._id);
 
     // Set JWT token as a cookie: token, httpOnly, secure
-    res.cookie("token", token, {
+    res.cookie("authToken", token, {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
@@ -55,6 +56,57 @@ exports.registerUser = async (req, res) => {
       phone: user.phone,
       isAdmin: user.isAdmin,
       // token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// admin user
+exports.adminUserLogin = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "Invalid email or password or both." });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ message: "Invalid email or password or both" });
+    }
+
+    if (!user.isAdmin) {
+      return res
+        .status(401)
+        .json({
+          message:
+            "Access denied you are not allowed to access the website please leave 🥰",
+        });
+    }
+
+    // Generate JWT token
+    const token = generateToken(user._id);
+
+    // Set JWT token as a cookie: token, httpOnly, secure
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({
+      message: `Welcome back ${user.name}!!!`,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.isAdmin,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -83,10 +135,11 @@ exports.loginUser = async (req, res) => {
     const token = generateToken(user._id);
 
     // Set JWT token as a cookie: token, httpOnly, secure
-    res.cookie("token", token, {
+    res.cookie("authToken", token, {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
     });
 
     // Return user data + JWT
@@ -105,7 +158,11 @@ exports.loginUser = async (req, res) => {
 // Logout user
 exports.logoutUser = async (req, res) => {
   try {
-    res.clearCookie("token", { httpOnly: true });
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
     res.status(200).json({ message: "User logged out successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

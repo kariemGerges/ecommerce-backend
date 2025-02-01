@@ -60,11 +60,13 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(cors({
-  // origin: 'http://localhost:3001',
-  origin: 'https://kariemgerges.github.io',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    // origin: 'https://kariemgerges.github.io',
+    credentials: true,
+  })
+);
 
 app.use(compression());
 
