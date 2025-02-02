@@ -30,6 +30,10 @@ const OrderSchema = new Schema({
         type: Date,
         required: true
     },
+    pickupTime: {
+        type: String,
+        required: true
+    },
     pickupStatus: {
         type: String,
         enum: ['Pending', 'Ready', 'Completed', 'Cancelled'],

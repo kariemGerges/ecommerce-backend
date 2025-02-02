@@ -3,11 +3,19 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const { sendOrderConfirmationEmail } = require("../utils/emailUtils");
 
-// CREATE an order
+// CREATE an order ==> eCommerce-client
 exports.createOrder = async (req, res) => {
   try {
     // items item.productId);, quantity, price }, ...]
-    const { items, pickupDate, pickupNotes } = req.body;
+    const {
+      items,
+      pickupDate,
+      pickupTime,
+      paymentStatus,
+      pickupStatus,
+      customerComments,
+      createdAt,
+    } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
@@ -40,9 +48,11 @@ exports.createOrder = async (req, res) => {
       items: orderItems,
       totalPrice,
       pickupDate,
-      paymentStatus: "Pending",
-      pickupStatus: "Pending",
-      pickupNotes: pickupNotes || "",
+      pickupTime,
+      paymentStatus,
+      pickupStatus,
+      customerComments,
+      createdAt
     });
 
     const savedOrder = await order.save();
@@ -60,14 +70,14 @@ exports.createOrder = async (req, res) => {
       orderDetails
     );
 
-    res.status(201).json(savedOrder);
+    res.status(200).json(savedOrder);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// GET all orders (admin only)
+// GET all orders (admin only) ==> eCommerce-admin
 // http://localhost:3000/orders?status=Pending&startDate=2025-01-07&endDate=2025-01-30&page=1&limit=10 (GET)
 exports.getAllOrders = async (req, res) => {
   try {
@@ -91,7 +101,7 @@ exports.getAllOrders = async (req, res) => {
     }
 
     // Validate `status`
-    if (status && !["Pending", "Ready", "Completed", "Cancelled"].includes(status)) {
+    if (status && !["Pending", "Ready", "Processing" ,"Completed", "Cancelled"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
@@ -175,6 +185,16 @@ exports.getAllOrders = async (req, res) => {
                 $cond: [{ $eq: ["$pickupStatus", "Completed"] }, 1, 0],
               },
             },
+            cancelled: {
+              $sum: {
+                $cond: [{ $eq: ["$pickupStatus", "Cancelled"] }, 1, 0],
+              },
+            },
+            processing: {
+              $sum: {
+                $cond: [{ $eq: ["$pickupStatus", "Processing"] }, 1, 0],
+              },
+            },
           },
         },
       ]),
@@ -211,6 +231,8 @@ exports.getAllOrders = async (req, res) => {
       ordersPending: stats.pending,
       ordersReady: stats.ready,
       ordersCompleted: stats.completed,
+      ordersCancelled: stats.cancelled,
+      ordersProcessing: stats.processing,
       totalItems,
       pagination: {
         currentPage: parseInt(page),
@@ -230,7 +252,7 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// GET current user's orders
+// GET current user's orders ==> eCommerce-client
 // http://localhost:3000/orders/myorders (GET)
 exports.getMyOrders = async (req, res) => {
   try {
@@ -243,7 +265,7 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// UPDATE order pickup status (admin only)
+// UPDATE order pickup status (admin only) ==> eCommerce-admin
 exports.updatePickupStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -261,7 +283,7 @@ exports.updatePickupStatus = async (req, res) => {
   }
 };
 
-// (Optional) UPDATE payment status after a successful payment
+// (Optional) UPDATE payment status after a successful payment ==> eCommerce-admin
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const { orderId } = req.params;

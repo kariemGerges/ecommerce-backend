@@ -121,7 +121,7 @@ exports.loginUser = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ message: "Invalid email or password or both." });
+        .json({ message: "Invalid email or password or both" });
     }
 
     const isMatch = await user.matchPassword(password);
@@ -139,14 +139,15 @@ exports.loginUser = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "lax",
     });
 
     // Return user data + JWT
-    res.json({
+    return res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       isAdmin: user.isAdmin,
       // token,
     });
