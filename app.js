@@ -92,15 +92,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(
-  session({
-    cookie: {
-      sameSite: "none", // required for cross-site
-      secure: true, // ensures the browser only sends cookies over HTTPS
-    },
-  })
-);
-
 
 app.use(compression());
 
