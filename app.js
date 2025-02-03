@@ -90,7 +90,8 @@ const corsOptions = {
 };
 
 
-app.use(cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight for all routes
 
 
 app.use(compression());
