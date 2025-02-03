@@ -60,15 +60,21 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(cors({
-  origin: 'https://kariemgerges.github.io', // Allow only your frontend
-  methods: 'GET, POST, PUT, DELETE, OPTIONS',
-  allowedHeaders: 'Content-Type, Authorization',
-  credentials: true, // Allow cookies or authentication headers if needed
-}));
+// middleware 
+  const corsOptions = {
+    origin: [
+        'https://kariemgerges.github.io', // production frontend
+        'http://localhost:3000'           // local development frontend
+    ],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Length", "X-JSON"], // Optional: specify any headers that should be exposed
+    preflightContinue: false, // Pass to next middleware if options request is valid
+    optionsSuccessStatus: 204 // Status code for successful preflight response
+};
 
-// Handle preflight requests
-app.options('*', cors());// Handle preflight for all routes
+app.use(cors(corsOptions));
 
 
 app.use(compression());
