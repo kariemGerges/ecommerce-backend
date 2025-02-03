@@ -62,8 +62,8 @@ app.use(limiter);
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
-    // origin: 'https://kariemgerges.github.io',
+    // origin: "http://localhost:3001",
+    origin: 'https://kariemgerges.github.io',
     credentials: true,
   })
 );
