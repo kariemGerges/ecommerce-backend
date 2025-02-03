@@ -256,10 +256,12 @@ exports.getAllOrders = async (req, res) => {
 // http://localhost:3000/orders/myorders (GET)
 exports.getMyOrders = async (req, res) => {
   try {
+
     const orders = await Order.find({ user: req.user._id }).populate(
       "items.productId"
     );
-    res.json(orders);
+
+    res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

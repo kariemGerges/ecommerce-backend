@@ -16,7 +16,7 @@ router.post('/', protect, createOrder);
 
 // Get orders for the logged in user
 // http://localhost:3000/orders/myorders (GET)
-router.get('/myorders', protect, getMyOrders);
+router.get('/myOrders', protect, getMyOrders);
 
 
 // Admin only: get all orders
