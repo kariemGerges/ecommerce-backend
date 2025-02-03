@@ -97,7 +97,7 @@ exports.adminUserLogin = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     return res.status(200).json({
@@ -139,7 +139,7 @@ exports.loginUser = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     // Return user data + JWT
@@ -162,7 +162,7 @@ exports.logoutUser = async (req, res) => {
     res.clearCookie("authToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
     res.status(200).json({ message: "User logged out successfully" });
   } catch (err) {
