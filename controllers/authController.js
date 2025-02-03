@@ -47,6 +47,7 @@ exports.registerUser = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
     });
 
     res.status(201).json({

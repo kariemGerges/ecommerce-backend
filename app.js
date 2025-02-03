@@ -51,33 +51,47 @@ app.use(
 );
 
 // 3) RATE LIMITING
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  // max: 200,                 // max requests per IP per windowMs
-  message: {
-    success: false,
-    message: "Too many requests from this IP, please try again later.",
-  },
-});
-app.use(limiter);
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   // max: 200,                 // max requests per IP per windowMs
+//   message: {
+//     success: false,
+//     message: "Too many requests from this IP, please try again later.",
+//   },
+// });
+// app.use(limiter);
 
 // middleware
+// List your allowed origins
+const allowedOrigins = [
+  "https://ecommerce-frontend-qgyu.onrender.com",  // Production frontend (Render)
+  "https://ecommerce-frontend-henna-two.vercel.app", // Production frontend (Vercel)
+  "https://kariemgerges.github.io",                 // Production frontend (GitHub Pages)
+  "http://localhost:3000",                           // Local development
+];
+
 const corsOptions = {
-  origin: [
-    "https://ecommerce-frontend-qgyu.onrender.com", // production frontend
-    "https://ecommerce-frontend-henna-two.vercel.app", // production frontend
-    "https://kariemgerges.github.io", // production frontend
-    "http://localhost:3000", // local development frontend
-  ],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the incoming origin is allowed
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: Origin ${origin} not allowed by CORS policy`));
+    }
+  },
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
+  credentials: true, // Allows the backend to accept cookies and other credentials
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["Content-Length", "X-JSON"], // Optional: specify any headers that should be exposed
-  preflightContinue: false, // Pass to next middleware if options request is valid
-  optionsSuccessStatus: 204, // Status code for successful preflight response
+  exposedHeaders: ["Content-Length", "X-JSON"],
+  optionsSuccessStatus: 204,
 };
 
+// Apply the CORS middleware before your routes
 app.use(cors(corsOptions));
+
 
 app.use(compression());
 
