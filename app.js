@@ -84,7 +84,7 @@ const corsOptions = {
   allowedHeaders: [
     "Content-Type",
     "Authorization",
-    // Include any custom headers your frontend might send
+    // Include any custom headers your frontend might send in the request
   ],
   // Some people also set 'preflightContinue' or 'optionsSuccessStatus' if needed
 };
