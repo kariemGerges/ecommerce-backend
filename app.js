@@ -60,13 +60,47 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+const whitelist = [
+  "https://kariemgerges.github.io",
+  "http://localhost:3000",
+  // add more if needed
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+
+    // If the origin is in the whitelist, allow it
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Otherwise, block it
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // needed for including cookies, tokens, etc.
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // as needed
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    // Include any custom headers your frontend might send
+  ],
+  // Some people also set 'preflightContinue' or 'optionsSuccessStatus' if needed
+};
+
+
+app.use(cors(corsOptions));
+
 app.use(
-  cors({
-    // origin: "http://localhost:3001",
-    origin: 'https://kariemgerges.github.io',
-    credentials: true,
+  session({
+    cookie: {
+      sameSite: "none", // required for cross-site
+      secure: true, // ensures the browser only sends cookies over HTTPS
+    },
   })
 );
+
 
 app.use(compression());
 
