@@ -47,7 +47,8 @@ exports.registerUser = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "none", // it has to be none for production
+      // sameSite: "lax", // for development
     });
 
     res.status(201).json({
@@ -98,7 +99,8 @@ exports.adminUserLogin = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "none", // it has to be none for production
+      // sameSite: "lax", // for development
     });
 
     return res.status(200).json({
@@ -140,7 +142,8 @@ exports.loginUser = async (req, res) => {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "none", // it has to be none for production
+      // sameSite: "lax", // for development
     });
 
     // Return user data + JWT

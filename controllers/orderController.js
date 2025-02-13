@@ -22,7 +22,7 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: "No items in order" });
     }
 
-    let totalPrice = 0;
+    let subtotal = 0;
 
     // Build order items array with actual product references
     const orderItems = [];
@@ -39,8 +39,24 @@ exports.createOrder = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
       });
-      totalPrice += item.price * item.quantity;
+      subtotal += item.price * item.quantity;
     }
+
+    /// Calculate pickup fee (0 if subtotal > 20, otherwise 4.95)
+    const pickupFee = subtotal > 20 ? 0 : 4.95;
+    // Calculate tax as 7% of the subtotal
+    const tax = subtotal * 0.07;
+
+    // Final total: subtotal + pickupFee + tax
+    const totalPrice = subtotal + pickupFee + tax;
+
+    const logger = () => {
+      console.log("tax", tax);
+      console.log("pickupFee", pickupFee);
+      console.log("totalPrice", totalPrice);
+    };
+
+    logger();  
 
     const order = new Order({
       user: req.user ? req.user._id : null,
@@ -52,7 +68,7 @@ exports.createOrder = async (req, res) => {
       paymentStatus,
       pickupStatus,
       customerComments,
-      createdAt
+      createdAt,
     });
 
     const savedOrder = await order.save();
@@ -101,7 +117,12 @@ exports.getAllOrders = async (req, res) => {
     }
 
     // Validate `status`
-    if (status && !["Pending", "Ready", "Processing" ,"Completed", "Cancelled"].includes(status)) {
+    if (
+      status &&
+      !["Pending", "Ready", "Processing", "Completed", "Cancelled"].includes(
+        status
+      )
+    ) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
@@ -243,7 +264,7 @@ exports.getAllOrders = async (req, res) => {
         hasNextPage: parseInt(page) < totalPages,
         previousPage: parseInt(page) - 1,
         nextPage: parseInt(page) + 1,
-        
+
         totalDocs,
       },
     });
@@ -256,7 +277,6 @@ exports.getAllOrders = async (req, res) => {
 // http://localhost:3000/orders/myorders (GET)
 exports.getMyOrders = async (req, res) => {
   try {
-
     const orders = await Order.find({ user: req.user._id }).populate(
       "items.productId"
     );

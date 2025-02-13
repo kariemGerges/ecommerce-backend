@@ -52,7 +52,7 @@ UserSchema.pre('save', async function (next) {
     } catch (err) {
         next(err);
     }
-  });
+});
   
   // Compare entered password with hashed password
 UserSchema.methods.matchPassword = async function (enteredPassword) {

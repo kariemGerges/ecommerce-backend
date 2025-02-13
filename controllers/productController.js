@@ -107,14 +107,31 @@ exports.getProductsPaginated = async (req, res) => {
 
 // get random products
 exports.getRandomProducts = async (req, res) => {
-  const filter = [{ $sample: { size: 3 } }];
+  const { category } = req.query;
+  const pipeline = [];
+
+  if (category) {
+    // Ensure category is an array even if a single value is provided.
+    const categories = Array.isArray(category) ? category : [category];
+    pipeline.push({
+      $match: { category: { $in: categories } },
+    });
+  }
+
+  // Randomly sample 3 documents from the filtered results.
+  pipeline.push({
+    $sample: { size: 3 },
+  });
+
   try {
-    const products = await Product.aggregate(filter);
+    const products = await Product.aggregate(pipeline);
     res.json(products);
   } catch (error) {
     res.status(500).json({ errMessage: error.message });
   }
 };
+
+
 // Get product by ID
 exports.getProductById = async (req, res) => {
   try {

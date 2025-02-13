@@ -67,7 +67,8 @@ const allowedOrigins = [
   "https://ecommerce-frontend-qgyu.onrender.com",  // Production frontend (Render)
   "https://ecommerce-frontend-henna-two.vercel.app", // Production frontend (Vercel)
   "https://kariemgerges.github.io",                 // Production frontend (GitHub Pages)
-  "http://localhost:3000",                           // Local development
+  "http://localhost:3001",                           // Local development
+  "http://localhost:3002",                           // Local development
 ];
 
 const corsOptions = {
