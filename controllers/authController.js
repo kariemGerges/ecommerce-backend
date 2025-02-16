@@ -83,12 +83,10 @@ exports.adminUserLogin = async (req, res) => {
     }
 
     if (!user.isAdmin) {
-      return res
-        .status(401)
-        .json({
-          message:
-            "Access denied you are not allowed to access the website please leave 🥰",
-        });
+      return res.status(401).json({
+        message:
+          "Access denied you are not allowed to access the website please leave 🥰",
+      });
     }
 
     // Generate JWT token
