@@ -65,7 +65,8 @@ app.use(
 // List your allowed origins
 const allowedOrigins = [
   "https://ecommerce-frontend-qgyu.onrender.com",  // Production frontend (Render)
-  "https://ecommerce-frontend-henna-two.vercel.app", // Production frontend (Vercel)
+  "https://ecommerce-frontend-henna-two.vercel.app", // Production frontend (Vercel) customer website
+  "https://ecommerce-frontend-admindashborad.vercel.app", // production frontend (vercel) admin dashboard
   "https://kariemgerges.github.io",                 // Production frontend (GitHub Pages)
   "http://localhost:3001",                           // Local development
   "http://localhost:3002",                           // Local development
